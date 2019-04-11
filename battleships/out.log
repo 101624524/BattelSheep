@@ -4,8 +4,6 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
 This compiler is provided as part of the Microsoft (R) .NET Framework, but only supports language versions up to C# 5, which is no longer the latest version. For compilers that support newer versions of the C# programming language, see http://go.microsoft.com/fwlink/?LinkID=533240
 
-src\HighScoreController.cs(19,19): error CS1031: Type expected
-src\HighScoreController.cs(20,19): error CS1031: Type expected
 src\Model\AttackResult.cs(18,23): error CS0101: The namespace '<global namespace>' already contains a definition for 'AIPlayer'
 src\Model\AIPlayer.cs(18,23): (Location of symbol related to previous error)
 src\Model\AttackResult.cs(25,21): error CS0102: The type 'AIPlayer' already contains a definition for 'Location'

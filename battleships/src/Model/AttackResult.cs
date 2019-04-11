@@ -66,7 +66,7 @@ public abstract class AIPlayer : Player
         ///         ''' </summary>
         ///         ''' <param name="row">the row of the location</param>
         ///         ''' <param name="column">the column of the location</param>
-        public Location(int row, int column)
+        public void location(int row, int column)
         {
             _Column = column;
             _Row = row;
@@ -78,7 +78,7 @@ public abstract class AIPlayer : Player
         ///         ''' <param name="this">location 1</param>
         ///         ''' <param name="other">location 2</param>
         ///         ''' <returns>true if location 1 and location 2 are at the same spot</returns>
-        public static bool operator ==(Location @this, Location other)
+        public static bool operator ==(location @this, location other)
         {
             return @this != null && other != null && @this.Row == other.Row && @this.Column == other.Column;
         }
