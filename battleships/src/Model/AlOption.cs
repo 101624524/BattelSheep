@@ -1,4 +1,4 @@
-﻿public enum AIOption
+public enum AIOption
 {
     /// <summary>
     ///     ''' Easy, total random shooting
