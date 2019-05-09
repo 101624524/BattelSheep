@@ -1,59 +1,36 @@
-using System;
-using System.Collections.Generic;
-using SwinGameSDK;
 
+using Microsoft.VisualBasic;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+//using System.Data;
+using System.Diagnostics;
+using SwinGameSDK;
 
 /// <summary>
 /// The GameController is responsible for controlling the game,
 /// managing user input, and displaying the current state of the
 /// game.
 /// </summary>
-public sealed class GameController
+public static class GameController
 {
-	public static Timer _gameTimer = SwinGame.CreateTimer ();
+
 	private static BattleShipsGame _theGame;
 	private static Player _human;
+
 	private static AIPlayer _ai;
 
 	private static Stack<GameState> _state = new Stack<GameState>();
 
-	private static bool muteFlag;
-
 	private static AIOption _aiSetting;
-	public static Random rnd = new Random ();
-
-	public static Timer GameTimer {
-		get {
-			return _gameTimer;
-		}
-	}
-
-	public static int TimeLeft ()
-	{
-		int _timeLeft = 180000;
-		_timeLeft -= (int)SwinGame.TimerTicks (GameTimer);
-		_timeLeft /= 1000;
-
-		if (_timeLeft < 0) {
-			_timeLeft = 0;
-			SwitchState (GameState.EndingGame);
-		}
-
-		return _timeLeft;
-	}
-
 	/// <summary>
 	/// Returns the current state of the game, indicating which screen is
 	/// currently being used
 	/// </summary>
 	/// <value>The current state</value>
 	/// <returns>The current state</returns>
-	public static GameState CurrentState
-	{
-		get
-		{
-			return _state.Peek();
-		}
+	public static GameState CurrentState {
+		get { return _state.Peek(); }
 	}
 
 	/// <summary>
@@ -61,12 +38,8 @@ public sealed class GameController
 	/// </summary>
 	/// <value>the human player</value>
 	/// <returns>the human player</returns>
-	public static Player HumanPlayer
-	{
-		get
-		{
-			return _human;
-		}
+	public static Player HumanPlayer {
+		get { return _human; }
 	}
 
 	/// <summary>
@@ -74,17 +47,10 @@ public sealed class GameController
 	/// </summary>
 	/// <value>the computer player</value>
 	/// <returns>the conputer player</returns>
-	public static Player ComputerPlayer
-	{
-		get
-		{
-			return _ai;
-		}
+	public static Player ComputerPlayer {
+		get { return _ai; }
 	}
 
-	/// <summary>
-	/// Initializes the state that the player is inhabiting in the main menu.
-	/// </summary>
 	static GameController()
 	{
 		//bottom state will be quitting. If player exits main menu then the game is over
@@ -102,16 +68,14 @@ public sealed class GameController
 	/// </remarks>
 	public static void StartGame()
 	{
-		int randStart = rnd.Next (1, 10);
 		if (_theGame != null)
-		{
 			EndGame();
-		}
 
 		//Create the game
 		_theGame = new BattleShipsGame();
 
 		//create the players
+<<<<<<< HEAD
 
 		if (_aiSetting == AIOption.Medium)
 		{
@@ -125,6 +89,18 @@ public sealed class GameController
 		{
 			_ai = new AIEasyPlayer(_theGame);
 
+=======
+		switch (_aiSetting) {
+			case AIOption.Medium:
+				_ai = new AIMediumPlayer(_theGame);
+				break;
+			case AIOption.Hard:
+				_ai = new AIHardPlayer(_theGame);
+				break;
+			default:
+				_ai = new AIHardPlayer(_theGame);
+				break;
+>>>>>>> parent of 7bbf4b1... timer enhancement
 		}
 
 		_human = new Player(_theGame);
@@ -134,13 +110,6 @@ public sealed class GameController
 		_theGame.AttackCompleted += AttackCompleted;
 
 		AddNewState(GameState.Deploying);
-		if (randStart == 1 || randStart == 2 || randStart == 3) {
-			Audio.PlaySoundEffect (GameResources.GameSound ("Start1"));
-		} else if (randStart == 4 || randStart == 5 || randStart == 6) {
-			Audio.PlaySoundEffect (GameResources.GameSound ("Start2"));
-		} else {
-			Audio.PlaySoundEffect (GameResources.GameSound ("Start3"));
-		}
 	}
 
 	/// <summary>
@@ -166,34 +135,20 @@ public sealed class GameController
 		SwinGame.RefreshScreen();
 	}
 
-	/// <summary>
-	/// Plays the corresponding animation sequence and sound if an explosion animation was carried out.
-	/// </summary>
-	/// <param name="row">Row.</param>
-	/// <param name="column">Column.</param>
-	/// <param name="showAnimation">If set to <c>true</c> show animation.</param>
 	private static void PlayHitSequence(int row, int column, bool showAnimation)
 	{
-
-		if (showAnimation)
-		{
+		if (showAnimation) {
 			UtilityFunctions.AddExplosion(row, column);
 		}
 
 		Audio.PlaySoundEffect(GameResources.GameSound("Hit"));
+
 		UtilityFunctions.DrawAnimationSequence();
 	}
 
-	/// <summary>
-	/// Plays the corresponding animation sequence and sound if a splash animation was carried out.
-	/// </summary>
-	/// <param name="row">Row.</param>
-	/// <param name="column">Column.</param>
-	/// <param name="showAnimation">If set to <c>true</c> show animation.</param>
 	private static void PlayMissSequence(int row, int column, bool showAnimation)
 	{
-		if (showAnimation)
-		{
+		if (showAnimation) {
 			UtilityFunctions.AddSplash(row, column);
 		}
 
@@ -212,84 +167,46 @@ public sealed class GameController
 	/// </remarks>
 	private static void AttackCompleted(object sender, AttackResult result)
 	{
-		int randomLose = rnd.Next (1, 3);
-		int randomDestroy = rnd.Next (1, 4);
 		bool isHuman = false;
-		isHuman = ReferenceEquals(_theGame.Player, HumanPlayer);
+		isHuman = object.ReferenceEquals(_theGame.Player, HumanPlayer);
 
-		if (isHuman)
-		{
+		if (isHuman) {
 			UtilityFunctions.Message = "You " + result.ToString();
-		}
-		else
-		{
+		} else {
 			UtilityFunctions.Message = "The AI " + result.ToString();
 		}
 
-		if (result.Value == ResultOfAttack.Destroyed)
-		{
-			PlayHitSequence(System.Convert.ToInt32(result.Row), System.Convert.ToInt32(result.Column), isHuman);
-			Audio.PlaySoundEffect(GameResources.GameSound("Sink"));
+		switch (result.Value) {
+			case ResultOfAttack.Destroyed:
+				PlayHitSequence(result.Row, result.Column, isHuman);
+				Audio.PlaySoundEffect(GameResources.GameSound("Sink"));
 
-			if (randomDestroy == 1)
-			{
-				Audio.PlaySoundEffect (GameResources.GameSound ("Destroy1"));
-			}
+				break;
+			case ResultOfAttack.GameOver:
+				PlayHitSequence(result.Row, result.Column, isHuman);
+				Audio.PlaySoundEffect(GameResources.GameSound("Sink"));
 
-			else if (randomDestroy == 2)
-			{
-				Audio.PlaySoundEffect (GameResources.GameSound ("Destroy2"));
-			}
-
-			else if (randomDestroy == 3)
-			{
-				Audio.PlaySoundEffect (GameResources.GameSound ("Destroy3"));
-			}
-
-			else
-			{
-				Audio.PlaySoundEffect (GameResources.GameSound ("Destroy4"));
-			}
-
-		}
-		else if (result.Value == ResultOfAttack.GameOver)
-		{
-			PlayHitSequence(System.Convert.ToInt32(result.Row), System.Convert.ToInt32(result.Column), isHuman);
-			Audio.PlaySoundEffect(GameResources.GameSound("Sink"));
-
-			while (Audio.SoundEffectPlaying(GameResources.GameSound("Sink")))
-			{
-				SwinGame.Delay(10);
-				SwinGame.RefreshScreen();
-			}
-
-			if (HumanPlayer.IsDestroyed)
-			{
-				Audio.PlaySoundEffect(GameResources.GameSound("Lose"));
-				if (randomLose == 1) {
-					Audio.PlaySoundEffect (GameResources.GameSound ("Lose1"));
-				} else {
-					Audio.PlaySoundEffect (GameResources.GameSound ("Lose2"));
+				while (Audio.SoundEffectPlaying(GameResources.GameSound("Sink"))) {
+					SwinGame.Delay(10);
+					SwinGame.RefreshScreen();
 				}
 
-			}
-			else
-			{
-				Audio.PlaySoundEffect(GameResources.GameSound("Winner"));
-				Audio.PlaySoundEffect (GameResources.GameSound ("Win1"));
-			}
-		}
-		else if (result.Value == ResultOfAttack.Hit)
-		{
-			PlayHitSequence(System.Convert.ToInt32(result.Row), System.Convert.ToInt32(result.Column), isHuman);
-		}
-		else if (result.Value == ResultOfAttack.Miss)
-		{
-			PlayMissSequence(System.Convert.ToInt32(result.Row), System.Convert.ToInt32(result.Column), isHuman);
-		}
-		else if (result.Value == ResultOfAttack.ShotAlready)
-		{
-			Audio.PlaySoundEffect(GameResources.GameSound("Error"));
+				if (HumanPlayer.IsDestroyed) {
+					Audio.PlaySoundEffect(GameResources.GameSound("Lose"));
+				} else {
+					Audio.PlaySoundEffect(GameResources.GameSound("Winner"));
+				}
+
+				break;
+			case ResultOfAttack.Hit:
+				PlayHitSequence(result.Row, result.Column, isHuman);
+				break;
+			case ResultOfAttack.Miss:
+				PlayMissSequence(result.Row, result.Column, isHuman);
+				break;
+			case ResultOfAttack.ShotAlready:
+				Audio.PlaySoundEffect(GameResources.GameSound("Error"));
+				break;
 		}
 	}
 
@@ -307,8 +224,7 @@ public sealed class GameController
 		_theGame.AddDeployedPlayer(_human);
 		_theGame.AddDeployedPlayer(_ai);
 
-		SwitchState (GameState.Discovering);
-		Audio.PlaySoundEffect (GameResources.GameSound ("Siren"));
+		SwitchState(GameState.Discovering);
 	}
 
 	/// <summary>
@@ -349,17 +265,14 @@ public sealed class GameController
 	/// to the AI player.</remarks>
 	private static void CheckAttackResult(AttackResult result)
 	{
-		if (result.Value == ResultOfAttack.Miss)
-		{
-			if (ReferenceEquals (_theGame.Player, ComputerPlayer))
-			{
-				AIAttack ();
-			}
-		}
-
-		else if (result.Value == ResultOfAttack.GameOver)
-		{
-			SwitchState(GameState.EndingGame);
+		switch (result.Value) {
+			case ResultOfAttack.Miss:
+				if (object.ReferenceEquals(_theGame.Player, ComputerPlayer))
+					AIAttack();
+				break;
+			case ResultOfAttack.GameOver:
+				SwitchState(GameState.EndingGame);
+				break;
 		}
 	}
 
@@ -376,33 +289,28 @@ public sealed class GameController
 		//Read incoming input events
 		SwinGame.ProcessEvents();
 
-		if (CurrentState == GameState.ViewingMainMenu)
-		{
-			MenuController.HandleMainMenuInput();
-		}
-		else if (CurrentState == GameState.ViewingGameMenu)
-		{
-			MenuController.HandleGameMenuInput();
-		}
-		else if (CurrentState == GameState.AlteringSettings)
-		{
-			MenuController.HandleSetupMenuInput();
-		}
-		else if (CurrentState == GameState.Deploying)
-		{
-			DeploymentController.HandleDeploymentInput();
-		}
-		else if (CurrentState == GameState.Discovering)
-		{
-			DiscoveryController.HandleDiscoveryInput();
-		}
-		else if (CurrentState == GameState.EndingGame)
-		{
-			EndingGameController.HandleEndOfGameInput();
-		}
-		else if (CurrentState == GameState.ViewingHighScores)
-		{
-			HighScoreController.HandleHighScoreInput();
+		switch (CurrentState) {
+			case GameState.ViewingMainMenu:
+				MenuController.HandleMainMenuInput();
+				break;
+			case GameState.ViewingGameMenu:
+				MenuController.HandleGameMenuInput();
+				break;
+			case GameState.AlteringSettings:
+				MenuController.HandleSetupMenuInput();
+				break;
+			case GameState.Deploying:
+				DeploymentController.HandleDeploymentInput();
+				break;
+			case GameState.Discovering:
+				DiscoveryController.HandleDiscoveryInput();
+				break;
+			case GameState.EndingGame:
+				EndingGameController.HandleEndOfGameInput();
+				break;
+			case GameState.ViewingHighScores:
+				HighScoreController.HandleHighScoreInput();
+				break;
 		}
 
 		UtilityFunctions.UpdateAnimations();
@@ -418,45 +326,33 @@ public sealed class GameController
 	{
 		UtilityFunctions.DrawBackground();
 
-		if (CurrentState == GameState.ViewingMainMenu)
-		{
-			SwinGame.StopTimer (GameTimer);
-			MenuController.DrawMainMenu();
-		}
-		else if (CurrentState == GameState.ViewingGameMenu)
-		{
-			SwinGame.StopTimer (GameTimer);
-			MenuController.DrawGameMenu();
-		}
-		else if (CurrentState == GameState.AlteringSettings)
-		{
-			SwinGame.StopTimer (GameTimer);
-			MenuController.DrawSettings();
-		}
-		else if (CurrentState == GameState.Deploying)
-		{
-			SwinGame.ResetTimer (GameTimer);
-			DeploymentController.DrawDeployment();
-		}
-		else if (CurrentState == GameState.Discovering)
-		{
-			if (SwinGame.TimerTicks (GameTimer) == 0){
-				SwinGame.StartTimer (GameTimer);
-			}
-			DiscoveryController.DrawDiscovery();
-		}
-		else if (CurrentState == GameState.EndingGame)
-		{
-			EndingGameController.DrawEndOfGame();
-		}
-		else if (CurrentState == GameState.ViewingHighScores)
-		{
-			HighScoreController.DrawHighScores();
+		switch (CurrentState) {
+			case GameState.ViewingMainMenu:
+				MenuController.DrawMainMenu();
+				break;
+			case GameState.ViewingGameMenu:
+				MenuController.DrawGameMenu();
+				break;
+			case GameState.AlteringSettings:
+				MenuController.DrawSettings();
+				break;
+			case GameState.Deploying:
+				DeploymentController.DrawDeployment();
+				break;
+			case GameState.Discovering:
+				DiscoveryController.DrawDiscovery();
+				break;
+			case GameState.EndingGame:
+				EndingGameController.DrawEndOfGame();
+				break;
+			case GameState.ViewingHighScores:
+				HighScoreController.DrawHighScores();
+				break;
 		}
 
 		UtilityFunctions.DrawAnimations();
 
-		SwinGame.RefreshScreen(120);
+		SwinGame.RefreshScreen();
 	}
 
 	/// <summary>
@@ -486,17 +382,6 @@ public sealed class GameController
 	public static void EndCurrentState()
 	{
 		_state.Pop();
-	}
-
-	public static void Mute ()
-	{
-		if (muteFlag == false) {
-			muteFlag = true;
-			SwinGame.SetMusicVolume (0);
-		} else if (muteFlag == true) {
-			muteFlag = false;
-			SwinGame.SetMusicVolume (50);
-		}
 	}
 
 	/// <summary>
