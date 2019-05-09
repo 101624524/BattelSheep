@@ -112,6 +112,7 @@ public sealed class GameController
 		_theGame = new BattleShipsGame();
 
 		//create the players
+
 		if (_aiSetting == AIOption.Medium)
 		{
 			_ai = new AIMediumPlayer(_theGame);
@@ -123,6 +124,7 @@ public sealed class GameController
 		else
 		{
 			_ai = new AIEasyPlayer(_theGame);
+
 		}
 
 		_human = new Player(_theGame);
